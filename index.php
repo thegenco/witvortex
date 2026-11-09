@@ -13,6 +13,7 @@ if (empty($_SESSION['csrf_token'])) {
 <meta name="description" data-tr="WitVortex; ürün, deneyim ve teknolojiyi tek çatı altında birleştiren bağımsız bir dijital ürün stüdyosu." content="WitVortex is an independent digital product studio bringing product, experience, and technology together under one roof.">
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="assets/css/style.css">
+<!-- deploy-check: 2026-11-09 -->
 </head>
 <body>
 
