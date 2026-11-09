@@ -471,8 +471,7 @@ h1, h2, h3 {
   font-family: var(--font-body);
   font-weight: 300;
   color: var(--fg);
-  font-size: clamp(1.15rem, 0.9rem + 0.75vw, 1.45rem);
-  line-height: 1.55;
+  font-size: 1.15rem;
 }
 
 /* ---------- What We Do ---------- */
@@ -485,91 +484,6 @@ h1, h2, h3 {
   line-height: 1.1;
   margin: 0 0 3rem;
   color: var(--fg);
-}
-
-/* ---------- Story: metin + kaydırdıkça değişen görsel ---------- */
-.story-media,
-.story-figure {
-  display: none;
-}
-
-.story-frame {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  max-height: calc(100svh - var(--header-h) - 5rem);
-  border-radius: 24px;
-  overflow: hidden;
-  background: var(--bg-dark-2);
-}
-
-/* Görseller üst üste durur; aktif olan belirir ve yavaşça yerine oturur. */
-.story-frame img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transform: scale(1.08);
-  transition: opacity 700ms var(--ease-out), transform 1600ms var(--ease-out);
-}
-
-.story-frame img.is-active {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* Masaüstü: metin solda akar, görsel sağda sabit kalır. */
-@media (min-width: 901px) {
-  .story {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) clamp(280px, 30vw, 420px);
-    column-gap: clamp(3rem, 7vw, 7rem);
-    align-items: start;
-  }
-
-  .story-media {
-    display: block;
-    position: sticky;
-    top: calc(var(--header-h) + 2.5rem);
-  }
-
-  .story .manifesto-line {
-    margin-block: 0 1.6em;
-  }
-}
-
-/* Mobil: görseller paragrafların arasına girer, belirirken yerine oturur. */
-@media (max-width: 900px) {
-  .story-figure {
-    display: block;
-    margin: 2.5rem 0;
-    aspect-ratio: 4 / 5;
-    max-height: 70svh;
-    border-radius: 20px;
-    overflow: hidden;
-    background: var(--bg-dark-2);
-  }
-
-  .story-figure:first-of-type {
-    margin-top: 0;
-  }
-
-  .story-figure img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .js .story-figure img {
-    transform: scale(1.08);
-    transition: transform 1600ms var(--ease-out);
-  }
-
-  .js .story-figure.is-visible img {
-    transform: none;
-  }
 }
 
 /* ---------- Contact ---------- */
@@ -1002,16 +916,6 @@ h1, h2, h3 {
 
   .scroll-hint-dot {
     animation: none;
-  }
-
-  .story-frame img {
-    transform: none;
-    transition: opacity var(--dur-base) linear;
-  }
-
-  .js .story-figure img {
-    transform: none;
-    transition: none;
   }
 
   .nav-link,

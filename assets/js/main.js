@@ -137,22 +137,6 @@
     revealEls.forEach(function (el) { el.classList.add('is-visible'); });
   }
 
-  // ---- Story visuals ----
-  // Masaüstünde sağdaki görsel, okuma hizasından (üstten %40) geçen paragrafın grubuna göre değişir.
-  if ('IntersectionObserver' in window) {
-    document.querySelectorAll('[data-story]').forEach(function (story) {
-      var frames = story.querySelectorAll('.story-frame img');
-      var stepObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          var step = Number(entry.target.dataset.step);
-          frames.forEach(function (img, i) { img.classList.toggle('is-active', i === step); });
-        });
-      }, { rootMargin: '-40% 0px -60% 0px' });
-      story.querySelectorAll('[data-step]').forEach(function (el) { stepObserver.observe(el); });
-    });
-  }
-
   // ---- Hero video ----
   // Ekran dışındayken durur; hareketi azaltma tercihi varsa hiç oynamaz (poster görünür).
   var heroVideo = document.querySelector('.hero-video');
