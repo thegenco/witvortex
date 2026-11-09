@@ -9,6 +9,7 @@
       playsinline
       poster="<?php echo asset('assets/img/hero-poster.jpg'); ?>"
     >
+      <source src="<?php echo asset('assets/video/hero-mobile.mp4'); ?>" type="video/mp4" media="(max-width: 700px)">
       <source src="<?php echo asset('assets/video/hero.mp4'); ?>" type="video/mp4">
     </video>
 
