@@ -2,21 +2,23 @@
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
-function respond(bool $ok, string $message): void
+// Yanıt metin değil kod döner; istemci kodu sayfanın dilinde (EN/TR) gösterir.
+function respond(int $status, array $payload): void
 {
-    echo json_encode(['ok' => $ok, 'message' => $message]);
+    http_response_code($status);
+    echo json_encode($payload);
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    respond(false, 'Geçersiz istek yöntemi.');
+    respond(405, ['ok' => false, 'code' => 'method']);
 }
 
 $token = $_POST['csrf_token'] ?? '';
 if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
-    http_response_code(403);
-    respond(false, 'Oturum doğrulanamadı, sayfayı yenileyip tekrar deneyin.');
+    // Oturum süresi dolmuş olabilir: yeni token verilir, istemci yazılanı kaybetmeden bir kez tekrar dener.
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    respond(403, ['ok' => false, 'code' => 'session', 'token' => $_SESSION['csrf_token']]);
 }
 
 $name    = trim($_POST['name'] ?? '');
@@ -25,14 +27,20 @@ $phone   = trim($_POST['phone'] ?? '');
 $message = trim($_POST['message'] ?? '');
 $topic   = trim($_POST['topic'] ?? 'Merhaba WitVortex!');
 
-if ($name === '' || $email === '' || $message === '') {
-    http_response_code(422);
-    respond(false, 'Lütfen tüm alanları doldurun.');
+$fields = [];
+if ($name === '') {
+    $fields['name'] = 'required';
 }
-
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(422);
-    respond(false, 'Geçerli bir e-posta adresi girin.');
+if ($email === '') {
+    $fields['email'] = 'required';
+} elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $fields['email'] = 'email';
+}
+if ($message === '') {
+    $fields['message'] = 'required';
+}
+if ($fields) {
+    respond(422, ['ok' => false, 'code' => 'invalid', 'fields' => $fields]);
 }
 
 $allowedTopics = ['Merhaba WitVortex!', 'Ürün Fikri', 'İş Birliği', 'Yatırım', 'Kariyer'];
@@ -51,4 +59,4 @@ if (!$sent) {
     error_log('[WitVortex contact] ' . $subject . "\n" . $body);
 }
 
-respond(true, 'Gönderildi ✓');
+respond(200, ['ok' => true]);

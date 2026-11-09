@@ -70,6 +70,7 @@
   var langOptions = document.querySelectorAll('.lang-option');
   var translatable = document.querySelectorAll('[data-tr]');
   var translatableLabels = document.querySelectorAll('[data-tr-aria-label]');
+  var onLangChange = [];
 
   function setLang(lang) {
     document.documentElement.lang = lang;
@@ -98,6 +99,8 @@
     langOptions.forEach(function (option) {
       option.setAttribute('aria-pressed', String(option.dataset.lang === lang));
     });
+
+    onLangChange.forEach(function (fn) { fn(lang); });
   }
 
   setLang('en');
@@ -152,46 +155,166 @@
     });
   }
 
-  // ---- Contact form: AJAX submit ----
+  // ---- Contact form ----
+  // Durum ve hatalar butonun içine değil, alanların altına ve durum satırına
+  // sayfanın dilinde yazılır; dil değişince yeniden çizilir.
   var contactForm = document.getElementById('contactForm');
   var submitBtn = document.getElementById('submitBtn');
   var submitLabel = submitBtn.querySelector('.submit-label');
+  var formStatus = document.getElementById('formStatus');
+  var formSuccess = document.getElementById('formSuccess');
+  var requiredFields = ['name', 'email', 'message'];
+  var isSending = false;
+  var statusCode = null;
+  var fieldErrors = {};
 
-  var formMessages = {
+  var formText = {
+    send: { en: 'Send', tr: 'Gönder' },
     sending: { en: 'Sending…', tr: 'Gönderiliyor…' },
-    sent: { en: 'Sent ✓', tr: 'Gönderildi ✓' },
-    error: { en: 'Something went wrong, please try again.', tr: 'Bir hata oluştu, tekrar deneyin.' }
+    required: { en: 'This field is required.', tr: 'Bu alan zorunlu.' },
+    email: { en: 'Enter a valid email, like name@example.com.', tr: 'Geçerli bir e-posta girin, örn. ad@ornek.com.' },
+    invalid: { en: 'Check the highlighted fields.', tr: 'İşaretli alanları kontrol edin.' },
+    network: { en: 'Couldn’t send. Check your connection and try again.', tr: 'Gönderilemedi. Bağlantınızı kontrol edip tekrar deneyin.' },
+    server: { en: 'Couldn’t send. Please try again in a moment.', tr: 'Gönderilemedi. Birazdan tekrar deneyin.' }
   };
 
   function currentLang() {
     return document.documentElement.lang === 'tr' ? 'tr' : 'en';
   }
 
-  contactForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    submitBtn.disabled = true;
-    submitLabel.textContent = formMessages.sending[currentLang()];
+  function text(key) {
+    return formText[key][currentLang()];
+  }
 
-    fetch(contactForm.action, {
+  function hasFieldErrors() {
+    return requiredFields.some(function (name) { return fieldErrors[name]; });
+  }
+
+  function renderForm() {
+    // Gönderim sürerken durum satırı "Gönderiliyor…" der; buton etiketi sabit kalır.
+    var statusKey = isSending ? 'sending' : statusCode;
+    submitLabel.textContent = text('send');
+    formStatus.textContent = statusKey ? text(statusKey) : '';
+    formStatus.classList.toggle('is-error', !isSending && Boolean(statusCode));
+
+    requiredFields.forEach(function (name) {
+      var input = contactForm.elements[name];
+      var message = document.getElementById(name + '-error');
+      var code = fieldErrors[name];
+      if (code) {
+        input.setAttribute('aria-invalid', 'true');
+      } else {
+        input.removeAttribute('aria-invalid');
+      }
+      message.textContent = code ? text(code) : '';
+      message.hidden = !code;
+    });
+  }
+
+  function checkField(name) {
+    var input = contactForm.elements[name];
+    if (!input.value.trim()) return 'required';
+    if (input.type === 'email' && input.validity.typeMismatch) return 'email';
+    return null;
+  }
+
+  function focusFirstError() {
+    for (var i = 0; i < requiredFields.length; i++) {
+      if (fieldErrors[requiredFields[i]]) {
+        contactForm.elements[requiredFields[i]].focus();
+        return;
+      }
+    }
+  }
+
+  function showErrors(errors) {
+    fieldErrors = errors;
+    statusCode = 'invalid';
+    renderForm();
+    focusFirstError();
+  }
+
+  // Hata gösterildikten sonra alan düzeldikçe uyarısı kalkar.
+  requiredFields.forEach(function (name) {
+    contactForm.elements[name].addEventListener('input', function () {
+      if (!fieldErrors[name]) return;
+      fieldErrors[name] = checkField(name);
+      if (!hasFieldErrors()) statusCode = null;
+      renderForm();
+    });
+  });
+
+  function setSending(state) {
+    isSending = state;
+    submitBtn.setAttribute('aria-disabled', String(state));
+    submitBtn.classList.toggle('is-loading', state);
+    renderForm();
+  }
+
+  function showSuccess() {
+    contactForm.reset();
+    fieldErrors = {};
+    statusCode = null;
+    contactForm.hidden = true;
+    formSuccess.hidden = false;
+    formSuccess.focus();
+  }
+
+  function send(isRetry) {
+    return fetch(contactForm.action, {
       method: 'POST',
-      body: new FormData(contactForm)
+      body: new FormData(contactForm),
+      headers: { Accept: 'application/json' }
     })
-      .then(function (res) { return res.json(); })
+      .then(function (res) {
+        return res.json().catch(function () { return { ok: false, code: 'server' }; });
+      })
       .then(function (data) {
         if (data.ok) {
-          submitLabel.textContent = formMessages.sent[currentLang()];
-          submitBtn.classList.add('is-sent');
-          contactForm.reset();
+          showSuccess();
+        } else if (data.code === 'session' && data.token && !isRetry) {
+          // Oturum dolmuş: yeni token ile bir kez sessizce tekrar dene.
+          contactForm.elements.csrf_token.value = data.token;
+          return send(true);
+        } else if (data.code === 'invalid' && data.fields) {
+          showErrors(data.fields);
         } else {
-          submitLabel.textContent = data.message || formMessages.error[currentLang()];
-          submitBtn.disabled = false;
+          statusCode = 'server';
         }
       })
       .catch(function () {
-        submitLabel.textContent = formMessages.error[currentLang()];
-        submitBtn.disabled = false;
+        statusCode = 'network';
       });
+  }
+
+  contactForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (isSending) return;
+
+    var errors = {};
+    requiredFields.forEach(function (name) {
+      var code = checkField(name);
+      if (code) errors[name] = code;
+    });
+    if (Object.keys(errors).length) {
+      showErrors(errors);
+      return;
+    }
+
+    fieldErrors = {};
+    statusCode = null;
+    setSending(true);
+    send(false).then(function () { setSending(false); });
   });
+
+  document.getElementById('formReset').addEventListener('click', function () {
+    formSuccess.hidden = true;
+    contactForm.hidden = false;
+    contactForm.elements.name.focus();
+  });
+
+  onLangChange.push(renderForm);
+  renderForm();
 
   // ---- Back to top ----
   var backToTop = document.getElementById('backToTop');

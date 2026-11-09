@@ -16,10 +16,16 @@
   --dur-fast: 150ms;
   --dur-base: 250ms;
   --dur-slow: 600ms;
+  --line-field: rgba(0, 0, 0, 0.45);
+  --error: #b42318;
 }
 
 * {
   box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 /* Klavye odağı: sadece klavyeyle gezinirken görünür. */
@@ -535,6 +541,7 @@ h1, h2, h3 {
 .form-row label {
   font-size: 0.9rem;
   color: var(--fg-muted);
+  transition: color var(--dur-fast) ease;
 }
 
 .form-row input,
@@ -542,22 +549,22 @@ h1, h2, h3 {
 .form-row textarea {
   background: transparent;
   border: none;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--line-field);
   border-radius: 0;
   padding: 0.5rem 0;
   color: var(--fg);
   font-family: var(--font-body);
   font-size: 1rem;
   resize: vertical;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
 }
 
-.form-row select {
-  cursor: pointer;
-}
-
-.form-row label {
-  transition: color 0.2s ease;
+@media (hover: hover) {
+  .form-row input:hover,
+  .form-row select:hover,
+  .form-row textarea:hover {
+    border-bottom-color: rgba(0, 0, 0, 0.7);
+  }
 }
 
 /* Odaktaki alan: alt çizgi koyulaşır ve kalınlaşır, etiketi öne çıkar. */
@@ -573,31 +580,158 @@ h1, h2, h3 {
   color: var(--fg);
 }
 
+.form-row [aria-invalid="true"],
+.form-row [aria-invalid="true"]:hover,
+.form-row [aria-invalid="true"]:focus {
+  border-bottom-color: var(--error);
+  box-shadow: 0 1px 0 var(--error);
+}
+
+.form-row select {
+  cursor: pointer;
+  appearance: none;
+  padding-right: 1.75rem;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 0.25rem center / 12px 8px;
+}
+
+/* Destekleyen tarayıcıda mesaj alanı yazdıkça uzar. */
+@supports (field-sizing: content) {
+  .form-row textarea {
+    field-sizing: content;
+    min-height: 6.5rem;
+    resize: none;
+  }
+}
+
+.label-optional {
+  color: #737373;
+}
+
+.field-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--error);
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+}
+
+.form-status {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--fg-muted);
+}
+
+.form-status.is-error {
+  color: var(--error);
+}
+
 .submit-btn {
-  align-self: flex-start;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 10rem;
   padding: 1rem 2.5rem;
-  border-radius: 0;
   border: none;
+  border-radius: 0;
   background: var(--fg);
   color: var(--bg-dark);
   font-family: var(--font-display);
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.25s ease;
+  transition: background-color var(--dur-fast) ease, transform var(--dur-fast) ease;
 }
 
-.submit-btn:hover {
-  opacity: 0.85;
+@media (hover: hover) {
+  .submit-btn:hover {
+    background: #262626;
+  }
 }
 
-.submit-btn:disabled {
-  opacity: 0.6;
-  cursor: default;
+.submit-btn:active {
+  transform: scale(0.98);
 }
 
-.submit-btn.is-sent {
-  background: var(--accent-color-2);
-  color: #ffffff;
+.submit-btn[aria-disabled="true"] {
+  cursor: progress;
+}
+
+/* Yüklenirken etiket gizlenir, spinner ortada döner: buton genişliği hiç oynamaz. */
+.submit-spinner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  display: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.submit-btn.is-loading .submit-label {
+  visibility: hidden;
+}
+
+.submit-btn.is-loading .submit-spinner {
+  display: block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Başarı: form yerine sakin bir onay ve yeni mesaj seçeneği. */
+.form-success {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--fg);
+}
+
+.form-success:focus {
+  outline: none;
+}
+
+.form-success-title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.15;
+}
+
+.form-success-text {
+  margin: 0;
+  color: var(--fg-muted);
+}
+
+.form-reset {
+  margin-top: 1rem;
+  padding: 0.5rem 0;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  font-weight: 600;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .form-reset:hover {
+    text-decoration-thickness: 2px;
+  }
 }
 
 /* ---------- Footer ---------- */
