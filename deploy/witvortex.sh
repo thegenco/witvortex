@@ -7,6 +7,7 @@
 set -euo pipefail
 
 REPO="$HOME/repos/witvortex"
+URL=https://github.com/thegenco/witvortex.git
 WEB=/var/www/witvortex.com
 
 if [ ! -w "$WEB" ]; then
@@ -15,7 +16,9 @@ if [ ! -w "$WEB" ]; then
     exit 1
 fi
 
-[ -d "$REPO/.git" ] || git clone --quiet https://github.com/biiomer/witvortex.git "$REPO"
+[ -d "$REPO/.git" ] || git clone --quiet "$URL" "$REPO"
+# Eski adresle (biiomer/… yönlendirmesi) klonlanmış kopyayı da doğru adrese çeker.
+git -C "$REPO" remote set-url origin "$URL"
 git -C "$REPO" fetch --quiet origin main
 git -C "$REPO" reset --quiet --hard origin/main
 
