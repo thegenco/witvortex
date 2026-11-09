@@ -6,8 +6,9 @@
   --accent-color: #000000;
   --accent-color-2: #979797;
   --border-subtle: rgba(0, 0, 0, 0.1);
-  --font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
-  --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  /* Helvetica lisanslı, gömülmez: Apple cihazlarda Helvetica Neue, Windows'ta Arial, Android'de Roboto. */
+  --font-display: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --header-h: 84px;
   --focus-ring: #000000;
   --container: 1280px;
