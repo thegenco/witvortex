@@ -11,7 +11,7 @@
       <source src="<?php echo asset('assets/video/hero.mp4'); ?>" type="video/mp4">
     </video>
 
-    <button class="scroll-hint" id="scrollHint" type="button" aria-label="Aşağı kaydır">
+    <button class="scroll-hint" id="scrollHint" type="button" aria-label="Scroll down" data-tr-aria-label="Aşağı kaydır">
       <span class="scroll-hint-mouse">
         <span class="scroll-hint-dot"></span>
       </span>

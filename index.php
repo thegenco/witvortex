@@ -23,10 +23,12 @@ function asset(string $path): string
 <body>
 
 <?php include 'includes/header.php'; ?>
+<main id="main">
 <?php include 'includes/hero.php'; ?>
 <?php include 'includes/manifesto.php'; ?>
 <?php include 'includes/what-we-do.php'; ?>
 <?php include 'includes/contact.php'; ?>
+</main>
 <?php include 'includes/footer.php'; ?>
 
 <script src="<?php echo asset('assets/js/main.js'); ?>"></script>

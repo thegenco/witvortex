@@ -4,54 +4,72 @@
   // ---- Header scroll state ----
   var header = document.getElementById('siteHeader');
   var siteFooter = document.querySelector('.site-footer');
-  var headerHeight = header.offsetHeight;
+  var main = document.getElementById('main');
   var menuToggle = document.getElementById('menuToggle');
   var navOverlay = document.getElementById('navOverlay');
 
+  function isMenuOpen() {
+    return navOverlay.classList.contains('is-open');
+  }
+
   function onScroll() {
-    if (navOverlay.classList.contains('is-open')) {
+    if (isMenuOpen()) {
       return;
     }
 
-    if (window.scrollY > 40) {
-      header.classList.add('is-scrolled');
-    } else {
-      header.classList.remove('is-scrolled');
-    }
+    header.classList.toggle('is-scrolled', window.scrollY > 40);
 
     if (siteFooter) {
       var footerTop = siteFooter.getBoundingClientRect().top;
-      header.classList.toggle('is-dark', footerTop <= headerHeight);
+      header.classList.toggle('is-dark', footerTop <= header.offsetHeight);
     }
   }
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  // ---- Mobile menu ----
-  menuToggle.addEventListener('click', function () {
-    var isOpen = navOverlay.classList.toggle('is-open');
-    menuToggle.classList.toggle('is-open', isOpen);
-    menuToggle.setAttribute('aria-expanded', isOpen);
+  // ---- Menu overlay ----
+  // Açıkken arka plan kaymaz ve odaklanamaz (inert); Escape kapatır, odak butona döner.
+  function setMenu(open) {
+    navOverlay.classList.toggle('is-open', open);
+    menuToggle.classList.toggle('is-open', open);
+    menuToggle.setAttribute('aria-expanded', String(open));
+    document.documentElement.classList.toggle('menu-open', open);
+    if (main) main.inert = open;
+    if (siteFooter) siteFooter.inert = open;
 
-    if (isOpen) {
-      header.classList.add('is-dark');
-      header.classList.add('is-scrolled');
+    if (open) {
+      header.classList.add('is-dark', 'is-scrolled');
+      navOverlay.querySelector('.nav-link').focus({ preventScroll: true });
     } else {
       onScroll();
     }
+  }
+
+  menuToggle.addEventListener('click', function () {
+    setMenu(!isMenuOpen());
   });
+
   navOverlay.querySelectorAll('.nav-link').forEach(function (link) {
     link.addEventListener('click', function () {
-      navOverlay.classList.remove('is-open');
-      menuToggle.classList.remove('is-open');
-      menuToggle.setAttribute('aria-expanded', 'false');
-      onScroll();
+      setMenu(false);
     });
   });
 
-  // ---- Language toggle: site defaults to English, switches to Turkish ----
-  var langToggle = document.getElementById('langToggle');
+  header.querySelector('.logo').addEventListener('click', function () {
+    if (isMenuOpen()) setMenu(false);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && isMenuOpen()) {
+      setMenu(false);
+      menuToggle.focus();
+    }
+  });
+
+  // ---- Language: site defaults to English, switches to Turkish ----
+  var langOptions = document.querySelectorAll('.lang-option');
   var translatable = document.querySelectorAll('[data-tr]');
+  var translatableLabels = document.querySelectorAll('[data-tr-aria-label]');
 
   function setLang(lang) {
     document.documentElement.lang = lang;
@@ -70,18 +88,24 @@
       }
     });
 
-    langToggle.querySelectorAll('[data-lang]').forEach(function (span) {
-      span.classList.toggle('lang-active', span.dataset.lang === lang);
+    translatableLabels.forEach(function (el) {
+      if (el.dataset.enLabel === undefined) {
+        el.dataset.enLabel = el.getAttribute('aria-label');
+      }
+      el.setAttribute('aria-label', lang === 'tr' ? el.getAttribute('data-tr-aria-label') : el.dataset.enLabel);
+    });
+
+    langOptions.forEach(function (option) {
+      option.setAttribute('aria-pressed', String(option.dataset.lang === lang));
     });
   }
 
   setLang('en');
 
-  langToggle.addEventListener('click', function (e) {
-    var target = e.target.closest('[data-lang]');
-    var current = document.documentElement.lang === 'tr' ? 'tr' : 'en';
-    var next = target ? target.dataset.lang : (current === 'tr' ? 'en' : 'tr');
-    setLang(next);
+  langOptions.forEach(function (option) {
+    option.addEventListener('click', function () {
+      setLang(option.dataset.lang);
+    });
   });
 
   // ---- Scroll reveal ----
