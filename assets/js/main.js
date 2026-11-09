@@ -118,32 +118,6 @@
     manifestoLines.forEach(function (el) { el.classList.add('is-visible'); });
   }
 
-  // ---- Hero video: desktop/mobile source, autoplay on load ----
-  var desktopVideo = document.getElementById('heroVideoDesktop');
-  var mobileVideo = document.getElementById('heroVideoMobile');
-  var heroFallback = document.getElementById('heroFallback');
-  var isMobile = window.matchMedia('(max-width: 700px)').matches;
-  var activeVideo = isMobile ? mobileVideo : desktopVideo;
-  var soundToggle = document.getElementById('soundToggle');
-
-  if (activeVideo) {
-    activeVideo.addEventListener('playing', function () {
-      activeVideo.classList.add('is-active');
-      heroFallback.style.display = 'none';
-    });
-    activeVideo.addEventListener('error', function () {
-      activeVideo.classList.remove('is-active');
-      heroFallback.style.display = '';
-    }, true);
-    activeVideo.play().catch(function () {});
-  }
-
-  soundToggle.addEventListener('click', function () {
-    if (!activeVideo) return;
-    activeVideo.muted = !activeVideo.muted;
-    soundToggle.setAttribute('aria-pressed', String(!activeVideo.muted));
-  });
-
   // ---- Scroll hint: jump to the section after the hero ----
   var scrollHint = document.querySelector('.scroll-hint');
   if (scrollHint) {

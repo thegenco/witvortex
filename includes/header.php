@@ -7,8 +7,8 @@
     </button>
 
     <a href="#top" class="logo" aria-label="WitVortex home">
-      <img src="assets/img/darklogo.png" alt="WitVortex" class="logo-img logo-img-dark">
-      <img src="assets/img/whitelogo.png" alt="WitVortex" class="logo-img logo-img-white">
+      <img src="<?php echo asset('assets/img/darklogo.png'); ?>" alt="WitVortex" width="386" height="56" class="logo-img logo-img-dark">
+      <img src="<?php echo asset('assets/img/whitelogo.png'); ?>" alt="WitVortex" width="386" height="56" class="logo-img logo-img-white">
     </a>
 
     <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open our services" aria-expanded="false">

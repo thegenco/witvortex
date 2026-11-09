@@ -13,7 +13,7 @@
 
         <div class="footer-block" data-reveal>
           <h3 data-tr="Telefon">Phone</h3>
-          <a href="tel:+902122430000">+90 532 349 99 84</a>
+          <a href="tel:+905323499984">+90 532 349 99 84</a>
         </div>
 
         <div class="footer-block" data-reveal>

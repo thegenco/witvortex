@@ -3,6 +3,12 @@ session_start();
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+
+// Dosya değişince URL de değişir; Cloudflare/tarayıcı önbelleği eski sürümü göstermez.
+function asset(string $path): string
+{
+    return $path . '?v=' . filemtime(__DIR__ . '/' . $path);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -12,8 +18,7 @@ if (empty($_SESSION['csrf_token'])) {
 <title data-tr="WitVortex — Dijital Ürün Stüdyosu">WitVortex — Digital Product Studio</title>
 <meta name="description" data-tr="WitVortex; ürün, deneyim ve teknolojiyi tek çatı altında birleştiren bağımsız bir dijital ürün stüdyosu." content="WitVortex is an independent digital product studio bringing product, experience, and technology together under one roof.">
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="assets/css/style.css">
-<!-- deploy-check: 2026-11-09 -->
+<link rel="stylesheet" href="<?php echo asset('assets/css/style.css'); ?>">
 </head>
 <body>
 
@@ -24,6 +29,6 @@ if (empty($_SESSION['csrf_token'])) {
 <?php include 'includes/contact.php'; ?>
 <?php include 'includes/footer.php'; ?>
 
-<script src="assets/js/main.js"></script>
+<script src="<?php echo asset('assets/js/main.js'); ?>"></script>
 </body>
 </html>
