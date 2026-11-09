@@ -1,6 +1,8 @@
 (function () {
   'use strict';
 
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   // ---- Header scroll state ----
   var header = document.getElementById('siteHeader');
   var siteFooter = document.querySelector('.site-footer');
@@ -112,37 +114,45 @@
   });
 
   // ---- Scroll reveal ----
+  // Aynı anda görünür olan öğeler 80 ms arayla, sırayla açılır.
   var revealEls = document.querySelectorAll('[data-reveal]');
-  var manifestoLines = document.querySelectorAll('.manifesto-line');
 
   if ('IntersectionObserver' in window) {
     var revealObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          revealObserver.unobserve(entry.target);
-        }
-      });
+      entries
+        .filter(function (entry) { return entry.isIntersecting; })
+        .forEach(function (entry, i) {
+          var el = entry.target;
+          if (!reducedMotion && i > 0) {
+            el.style.transitionDelay = i * 80 + 'ms';
+            el.addEventListener('transitionend', function () { el.style.transitionDelay = ''; }, { once: true });
+          }
+          el.classList.add('is-visible');
+          revealObserver.unobserve(el);
+        });
     }, { threshold: 0.2 });
 
     revealEls.forEach(function (el) { revealObserver.observe(el); });
-
-    var manifestoObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry, i) {
-        if (entry.isIntersecting) {
-          var index = Array.prototype.indexOf.call(manifestoLines, entry.target);
-          setTimeout(function () {
-            entry.target.classList.add('is-visible');
-          }, index * 60);
-          manifestoObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.4 });
-
-    manifestoLines.forEach(function (el) { manifestoObserver.observe(el); });
   } else {
     revealEls.forEach(function (el) { el.classList.add('is-visible'); });
-    manifestoLines.forEach(function (el) { el.classList.add('is-visible'); });
+  }
+
+  // ---- Hero video ----
+  // Ekran dışındayken durur; hareketi azaltma tercihi varsa hiç oynamaz (poster görünür).
+  var heroVideo = document.querySelector('.hero-video');
+  if (heroVideo) {
+    if (reducedMotion) {
+      heroVideo.removeAttribute('autoplay');
+      heroVideo.pause();
+    } else if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) {
+          heroVideo.play().catch(function () {});
+        } else {
+          heroVideo.pause();
+        }
+      }).observe(heroVideo);
+    }
   }
 
   // ---- Scroll hint: jump to the section after the hero ----
@@ -151,7 +161,7 @@
     scrollHint.addEventListener('click', function () {
       var hero = document.querySelector('.hero');
       var next = hero.nextElementSibling;
-      if (next) next.scrollIntoView({ behavior: 'smooth' });
+      if (next) next.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
     });
   }
 

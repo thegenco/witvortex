@@ -18,6 +18,7 @@ function asset(string $path): string
 <title data-tr="WitVortex — Dijital Ürün Stüdyosu">WitVortex — Digital Product Studio</title>
 <meta name="description" data-tr="WitVortex; ürün, deneyim ve teknolojiyi tek çatı altında birleştiren bağımsız bir dijital ürün stüdyosu." content="WitVortex is an independent digital product studio bringing product, experience, and technology together under one roof.">
 <link rel="icon" href="data:,">
+<script>document.documentElement.classList.add('js');</script>
 <link rel="stylesheet" href="<?php echo asset('assets/css/style.css'); ?>">
 </head>
 <body>

@@ -1,10 +1,11 @@
 <footer class="site-footer">
   <div class="footer-image" aria-hidden="true">
-    <img src="assets/img/footer.png" alt="">
+    <img src="assets/img/footer.png" alt="" width="768" height="1376" loading="lazy" decoding="async">
   </div>
 
   <div class="footer-inner">
     <div class="footer-main">
+      <h2 class="sr-only" data-tr="İletişim bilgileri">Contact details</h2>
       <div class="footer-info">
         <div class="footer-block" data-reveal>
           <h3 data-tr="E-mail">Email</h3>

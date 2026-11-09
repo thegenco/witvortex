@@ -1,4 +1,5 @@
 <section class="hero" id="top">
+  <h1 class="sr-only" data-tr="WitVortex — Dijital Ürün Stüdyosu">WitVortex — Digital Product Studio</h1>
   <div class="hero-media">
     <video
       class="hero-video"
