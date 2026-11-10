@@ -608,6 +608,15 @@ h1, h2, h3 {
   }
 }
 
+/* Bot tuzağı alanı: ekranda ve klavye sırasında yok. */
+.form-trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .label-optional {
   color: #737373;
 }

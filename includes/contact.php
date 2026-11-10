@@ -8,22 +8,27 @@
       <form class="contact-form" id="contactForm" action="contact.php" method="POST" novalidate data-reveal>
         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
+        <div class="form-trap" aria-hidden="true">
+          <label for="website">Website</label>
+          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+
         <div class="form-grid">
           <div class="form-row">
             <label for="name" data-tr="Adınız ve Soyadınız">Your Full Name</label>
-            <input type="text" id="name" name="name" autocomplete="name" required aria-describedby="name-error">
+            <input type="text" id="name" name="name" autocomplete="name" maxlength="200" required aria-describedby="name-error">
             <p class="field-error" id="name-error" hidden></p>
           </div>
 
           <div class="form-row">
             <label for="email" data-tr="E-posta Adresiniz">Your Email Address</label>
-            <input type="email" id="email" name="email" autocomplete="email" required aria-describedby="email-error">
+            <input type="email" id="email" name="email" autocomplete="email" maxlength="254" required aria-describedby="email-error">
             <p class="field-error" id="email-error" hidden></p>
           </div>
 
           <div class="form-row">
             <label for="phone" data-tr='Telefon Numaranız <span class="label-optional">(isteğe bağlı)</span>'>Your Phone Number <span class="label-optional">(optional)</span></label>
-            <input type="tel" id="phone" name="phone" autocomplete="tel">
+            <input type="tel" id="phone" name="phone" autocomplete="tel" maxlength="50">
           </div>
 
           <div class="form-row">
@@ -40,7 +45,7 @@
 
         <div class="form-row">
           <label for="message" data-tr="Mesajınız">Your Message</label>
-          <textarea id="message" name="message" rows="4" required aria-describedby="message-error"></textarea>
+          <textarea id="message" name="message" rows="4" maxlength="5000" required aria-describedby="message-error"></textarea>
           <p class="field-error" id="message-error" hidden></p>
         </div>
 

@@ -183,6 +183,8 @@
     sending: { en: 'Sending…', tr: 'Gönderiliyor…' },
     required: { en: 'This field is required.', tr: 'Bu alan zorunlu.' },
     email: { en: 'Enter a valid email, like name@example.com.', tr: 'Geçerli bir e-posta girin, örn. ad@ornek.com.' },
+    too_long: { en: 'This is too long. Please shorten it.', tr: 'Bu alan çok uzun, lütfen kısaltın.' },
+    rate: { en: 'Too many messages from your connection. Please try again in an hour.', tr: 'Bağlantınızdan çok fazla mesaj gönderildi. Lütfen bir saat sonra tekrar deneyin.' },
     invalid: { en: 'Check the highlighted fields.', tr: 'İşaretli alanları kontrol edin.' },
     network: { en: 'Couldn’t send. Check your connection and try again.', tr: 'Gönderilemedi. Bağlantınızı kontrol edip tekrar deneyin.' },
     server: { en: 'Couldn’t send. Please try again in a moment.', tr: 'Gönderilemedi. Birazdan tekrar deneyin.' }
@@ -289,7 +291,7 @@
         } else if (data.code === 'invalid' && data.fields) {
           showErrors(data.fields);
         } else {
-          statusCode = 'server';
+          statusCode = data.code === 'rate' ? 'rate' : 'server';
         }
       })
       .catch(function () {

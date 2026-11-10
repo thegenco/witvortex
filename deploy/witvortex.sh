@@ -26,6 +26,7 @@ git -C "$REPO" reset --quiet --hard origin/main
 rsync -rlt --delete --delete-excluded \
     --exclude=.git --exclude=.github --exclude=.gitignore \
     --exclude=deploy --exclude=docker --exclude=docker-compose.yml --exclude='*.md' \
+    --exclude=database --exclude=bin \
     "$REPO/" "$WEB/"
 
 echo "✓ witvortex.com yayında: $(git -C "$REPO" log -1 --format='%h %s')"
